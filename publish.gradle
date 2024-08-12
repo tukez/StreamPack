@@ -16,29 +16,6 @@
  */
 
 apply plugin: 'maven-publish'
-apply plugin: 'signing'
-
-def isReleaseBuild() {
-    return !streampackVersion.contains("SNAPSHOT")
-}
-
-def getReleaseRepositoryUrl() {
-    return hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
-            : "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-}
-
-def getSnapshotRepositoryUrl() {
-    return hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
-            : "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-}
-
-def getRepositoryUsername() {
-    return hasProperty('MAVEN_USERNAME') ? OSSRH_USERNAME : System.getenv("MAVEN_USERNAME")
-}
-
-def getRepositoryPassword() {
-    return hasProperty('MAVEN_PASSWORD') ? OSSRH_PASSWORD : System.getenv("MAVEN_PASSWORD")
-}
 
 android {
     publishing {
@@ -52,69 +29,16 @@ android {
 afterEvaluate {
     publishing {
         publications {
-            release(MavenPublication) {
-                from components.release
-
-                groupId = "io.github.thibaultbee"
-                artifactId = artifactName
-                version = streampackVersion
-
-                pom {
-                    name = artifactName
-                    packaging = "aar"
-                    description = artifactDescription
-                    url = "https://github.com/ThibaultBee/StreamPack"
-
-                    scm {
-                        url = "https://github.com/ThibaultBee/StreamPack"
-                        connection = "scm:git:git://github.com/ThibaultBee/StreamPack.git"
-                        developerConnection = "scm:git:ssh://github.com/ThibaultBee/StreamPack.git"
-                    }
-
-                    licenses {
-                        license {
-                            name = "Apache License, Version 2.0"
-                            url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                            distribution = "repo"
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            name = "Thibault B."
-                            organizationUrl = "https://github.com/ThibaultBee"
-                        }
-                    }
-                }
-            }
             maven(MavenPublication) {
                 from components.release
-                groupId "io.github.thibaultbee"
-                version streampackVersion
+                groupId project.group
+                version project.version
                 artifactId artifactName
                 pom {
                     name = artifactName
                     packaging = "aar"
                 }
             }
-        }
-        repositories {
-            maven {
-                name = "MavenCentral"
-                if (!isReleaseBuild()) {
-                    url getSnapshotRepositoryUrl()
-                } else {
-                    url getReleaseRepositoryUrl()
-                }
-                credentials {
-                    username = getRepositoryUsername()
-                    password = getRepositoryPassword()
-                }
-            }
-        }
-        signing {
-            required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
-            sign publishing.publications.release
         }
     }
 }
