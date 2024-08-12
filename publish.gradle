@@ -87,6 +87,12 @@ afterEvaluate {
                     }
                 }
             }
+            maven(MavenPublication) {
+                groupId "io.github.thibaultbee"
+                artifactId artifactName
+                version streampackVersion
+                from components.java
+            }
         }
         repositories {
             maven {
