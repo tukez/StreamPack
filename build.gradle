@@ -23,6 +23,31 @@ plugins {
     id 'org.jetbrains.dokka' version "$dokkaVersion"
 }
 
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+
+    java {
+        withSourcesJar()
+        withJavadocJar()
+    }
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId "io.github.thibaultbee"
+                version streampackVersion
+                artifactId artifactName
+                pom {
+                    name = artifactName
+                    packaging = "aar"
+                }
+                from components.java
+            }
+        }
+    }
+}
+
 tasks.dokkaHtmlMultiModule.configure {
     outputDirectory.set(file("$buildDir/dokkaCustomMultiModuleOutput"))
 }
