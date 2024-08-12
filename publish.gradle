@@ -87,6 +87,16 @@ afterEvaluate {
                     }
                 }
             }
+            maven(MavenPublication) {
+                from components.release
+                groupId "io.github.thibaultbee"
+                version streampackVersion
+                artifactId artifactName
+                pom {
+                    name = artifactName
+                    packaging = "aar"
+                }
+            }
         }
         repositories {
             maven {
